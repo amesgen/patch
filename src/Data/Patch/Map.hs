@@ -5,7 +5,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -66,7 +65,12 @@ instance Ord k => Patch (PatchMap k v) where
             Nothing -> Just ()
             Just _ -> Nothing
 
-makeWrapped ''PatchMap
+-- makeWrapped ''PatchMap
+
+instance Wrapped (PatchMap k v) where
+  type Unwrapped (PatchMap k v) = Map k (Maybe v)
+  _Wrapped' = iso unPatchMap PatchMap
+instance t ~ PatchMap k' v' => Rewrapped (PatchMap k v) t
 
 instance FunctorWithIndex k (PatchMap k)
 instance FoldableWithIndex k (PatchMap k)

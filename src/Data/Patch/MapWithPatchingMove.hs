@@ -7,7 +7,6 @@
 {-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -54,7 +53,7 @@ module Data.Patch.MapWithPatchingMove
 
 import Data.Patch.Class
 
-import Control.Lens ((<&>))
+import Control.Lens ((<&>), Wrapped(..), Rewrapped(..), iso)
 import Control.Lens.TH (makeWrapped)
 import Data.Align (align)
 import Data.Foldable (toList)
@@ -480,4 +479,9 @@ instance ( Ord k
   mempty = PatchMapWithPatchingMove mempty
   mappend = (<>)
 
-makeWrapped ''PatchMapWithPatchingMove
+-- makeWrapped ''PatchMapWithPatchingMove
+
+instance Wrapped (PatchMapWithPatchingMove k p) where
+  type Unwrapped (PatchMapWithPatchingMove k p) = Map k (NodeInfo k p)
+  _Wrapped' = iso unPatchMapWithPatchingMove PatchMapWithPatchingMove
+instance t ~ PatchMapWithPatchingMove k' p' => Rewrapped (PatchMapWithPatchingMove k p) t

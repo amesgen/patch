@@ -4,7 +4,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -45,7 +44,12 @@ newtype PatchIntMap a = PatchIntMap { unPatchIntMap :: IntMap (Maybe a) }
 -- precedence.
 deriving instance Semigroup (PatchIntMap v)
 
-makeWrapped ''PatchIntMap
+-- makeWrapped ''PatchIntMap
+
+instance Wrapped (PatchIntMap a) where
+  type Unwrapped (PatchIntMap a) = IntMap (Maybe a)
+  _Wrapped' = iso unPatchIntMap PatchIntMap
+instance t ~ PatchIntMap a' => Rewrapped (PatchIntMap a) t
 
 -- | Apply the insertions or deletions to a given 'IntMap'.
 instance Patch (PatchIntMap a) where

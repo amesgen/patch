@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -9,7 +10,6 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -322,6 +322,19 @@ bitraverseFrom fk fv = fmap From'
   . PM.bitraverseFrom fk (\ ~Proxy -> pure Proxy) fv
   . coerce
 
-makeWrapped ''PatchMapWithMove
-makeWrapped ''NodeInfo
-makeWrapped ''From
+-- makeWrapped ''PatchMapWithMove
+-- makeWrapped ''NodeInfo
+-- makeWrapped ''From
+
+instance Wrapped (PatchMapWithMove k v) where
+  type Unwrapped (PatchMapWithMove k v) = PatchMapWithPatchingMove k (Proxy v)
+  _Wrapped' = iso unPatchMapWithMove' PatchMapWithMove'
+instance t ~ (PatchMapWithMove k' v') => Rewrapped (PatchMapWithMove k v) t
+instance Wrapped (NodeInfo k v) where
+  type Unwrapped (NodeInfo k v) = PM.NodeInfo k (Proxy v)
+  _Wrapped' = iso unNodeInfo' NodeInfo'
+instance t ~ NodeInfo k' v' => Rewrapped (NodeInfo k v) t
+instance Wrapped (From k v) where
+  type Unwrapped (From k v) = PM.From k (Proxy v)
+  _Wrapped' = iso unFrom' From'
+instance t ~ From k' v' => Rewrapped (From k v) t

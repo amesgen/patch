@@ -4,7 +4,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -18,6 +17,7 @@ module Data.Patch.PatchOrReplacement
   , traversePatchOrReplacement
   ) where
 
+import Control.Lens.Prism (Prism', prism')
 import Control.Lens.TH (makePrisms)
 import Data.Patch
 #if !MIN_VERSION_base(4,11,0)
@@ -77,4 +77,12 @@ instance (Semigroup p, Patch p) => Semigroup (PatchOrReplacement p) where
     (PatchOrReplacement_Patch a, PatchOrReplacement_Replacement b) -> PatchOrReplacement_Replacement $ applyAlways a b
     (PatchOrReplacement_Replacement a, _) -> PatchOrReplacement_Replacement a
 
-makePrisms ''PatchOrReplacement
+_PatchOrReplacement_Patch :: Prism' (PatchOrReplacement p) p
+_PatchOrReplacement_Patch = prism' PatchOrReplacement_Patch $ \case
+  PatchOrReplacement_Patch p -> Just p
+  PatchOrReplacement_Replacement _ -> Nothing
+
+_PatchOrReplacement_Replacement :: Prism' (PatchOrReplacement p) (PatchTarget p)
+_PatchOrReplacement_Replacement = prism' PatchOrReplacement_Replacement $ \case
+  PatchOrReplacement_Patch _ -> Nothing
+  PatchOrReplacement_Replacement p -> Just p
